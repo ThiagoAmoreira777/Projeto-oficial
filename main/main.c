@@ -15,7 +15,7 @@
 #define SERVO_PINO3 27
 #define SERVO_PINO4 4
 #define SERVO_PINO5 33  // Servo da GARRA
-#define POT1 ADC1_CHANNEL_0  // GPIO 36
+#define POT1 ADC1_CHANNEL_4 // GPIO 32
 #define POT2 ADC1_CHANNEL_3  // GPIO 39
 #define POT3 ADC1_CHANNEL_6  // GPIO 34
 #define POT4 ADC1_CHANNEL_7  // GPIO 35
@@ -101,27 +101,31 @@ int botao_pressionado(int pino, int *estado_anterior) {
 
 void app_main(void){
     //======================CONFIGURAÇÃO=================================
+    i2c_master_init(&display, 21, 22, -1); 
+    ssd1306_init(&display, 128, 64);
+    ssd1306_clear_screen(&display, false);
+    
+   
+    vTaskDelay(pdMS_TO_TICKS(100));
+
+
     servo_init_timer();
     servo_configurar(SERVO_PINO1, LEDC_CHANNEL_0);
     servo_configurar(SERVO_PINO2, LEDC_CHANNEL_1);
     servo_configurar(SERVO_PINO3, LEDC_CHANNEL_2);
     servo_configurar(SERVO_PINO4, LEDC_CHANNEL_3);
-    servo_configurar(SERVO_PINO5, LEDC_CHANNEL_4); // Servo da Garra
+    servo_configurar(SERVO_PINO5, LEDC_CHANNEL_4);
 
+    configuracao_botao(BTN_CIMA);
+    configuracao_botao(BTN_BAIXO);
+    configuracao_botao(BTN_OK);
+    configuracao_botao(BTN_GARRA);
+    
     pot_init();
     pot_configurar(POT1);
     pot_configurar(POT2);
     pot_configurar(POT3);
     pot_configurar(POT4);
-
-    configuracao_botao(BTN_CIMA);
-    configuracao_botao(BTN_BAIXO);
-    configuracao_botao(BTN_OK);
-    configuracao_botao(BTN_GARRA); // Configura o novo botão da garra
-    
-    i2c_master_init(&display, 21, 22, -1);
-    ssd1306_init(&display, 128, 64);
-    ssd1306_clear_screen(&display, false);
     //===================================================================
 
     // Move todos os servos para a posição inicial (Garra começa em 0 = Aberta)
@@ -144,13 +148,14 @@ void app_main(void){
             ssd1306_display_text(&display, 2, "  Modo Manual", 13, false);
             ssd1306_display_text(&display, 4, "  OK p/ voltar", 14, false);
 
-            // Move os 4 servos dos eixos através dos potenciômetros
+            
             for (int i = 0; i < 4; i++) {
                 int graus = graus_pot(pots[i]);
                 servo_mover(graus, servos[i]);
+                printf("%d\n",  graus_pot(pots[i]));
             }
 
-            // O novo botão exclusivo alterna o estado da garra
+            
             if (botao_pressionado(BTN_GARRA, &estado_anterior_garra)) {
                 garra_fechada = !garra_fechada;
             }
@@ -251,6 +256,6 @@ void app_main(void){
                 menu_atualizar = 1;
             }
         }
-        vTaskDelay(pdMS_TO_TICKS(20));
+        vTaskDelay(pdMS_TO_TICKS(25));
     }
 }
