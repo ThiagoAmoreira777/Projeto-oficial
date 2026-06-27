@@ -1,6 +1,3 @@
-Aqui está o seu código completamente comentado, mantendo o estilo didático e claro que você iniciou nas marcações originais. Foram adicionadas explicações detalhadas em cada bloco lógico para evidenciar o funcionamento do software.
-
-```c
 #include <stdio.h>
 #include <string.h>
 #include "freertos/FreeRTOS.h"
